@@ -27,14 +27,17 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
 
+
+
+
 class BaseModel(models.Model):
     category = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
     price = models.CharField(max_length=30)
     description = models.CharField(max_length=300)
     tags = models.CharField(max_length=300)
-    image = models.ImageField(upload_to='upload_image')
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    
 
     class Meta:
         abstract = True
@@ -47,7 +50,7 @@ class Product(BaseModel):
         db_table = "Product"
 
     def _str_(self):
-        return self.what_to_sell
+        return self.email
 
 class Service(BaseModel):
     what_to_do = models.CharField(max_length=300)
@@ -58,7 +61,7 @@ class Service(BaseModel):
         db_table = "Service"
 
     def _str_(self):
-        return self.what_to_do
+        return self.email
     
 class Event(BaseModel):
     what_is_it_about = models.CharField(max_length=300)
@@ -69,8 +72,8 @@ class Event(BaseModel):
         db_table = "Event"
 
     def _str_(self):
-        return self.what_is_it_about
-
+        return self.email
+        
 class Delivery(models.Model):
     pick_up_location = models.CharField(max_length=300)
     delivery_location = models.CharField(max_length=300)
@@ -81,7 +84,29 @@ class Delivery(models.Model):
     select_category = models.CharField(max_length=100)
     description = models.CharField(max_length=300)
     tags = models.CharField(max_length=300)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def _str_(self):
-        return self.pick_up_location
+        return self.owner
+
+
+class ProductImages(models.Model):
+    img = models.ImageField()
+    product = models.ForeignKey(Product,related_name="posts", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.img}"
+
+class ServiceImages(models.Model):
+    img = models.ImageField()
+    service = models.ForeignKey(Service, related_name="posts", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.img}"
+
+class EventImages(models.Model):
+    img = models.ImageField()
+    event = models.ForeignKey(Event, related_name="posts", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.img}"

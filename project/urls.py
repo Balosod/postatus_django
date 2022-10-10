@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView
 from rest_framework.routers import DefaultRouter
 from rest_framework.authtoken import views
-from .users.views import ActivateUserEmail
+from .users.views import ActivateUserEmail,GoodServicesView, DashboardView
 
 router = DefaultRouter()
 
@@ -17,6 +17,9 @@ urlpatterns = [
     path("auth/", include("djoser.urls")),
     path("auth/", include("djoser.urls.jwt")),
     path("auth/users/activate/account/", ActivateUserEmail.as_view()),
+    #path('',include("users.url")),
+    path('goods', GoodServicesView.as_view(),name= "goods"),
+    path('all', DashboardView.as_view(),name= "dashboard"),
     # the 'api-root' from django rest-frameworks default router
     # http://www.django-rest-framework.org/api-guide/routers/#defaultrouter
     re_path(r"^$", RedirectView.as_view(url=reverse_lazy("api-root"), permanent=False)),

@@ -6,11 +6,17 @@ services:
     restart: always
     environment:
       - DJANGO_SECRET_KEY=local
+      - USE_SPACES=TRUE
+      - AWS_ACCESS_KEY_ID=DO002LR3V76BCZ6MH4XT
+      - AWS_SECRET_ACCESS_KEY=WBrGHQEAQZv1euK3n/MOisMrnALDesjAPkMj1nkxx1M
+      - AWS_STORAGE_BUCKET_NAME=postatusapistorage
     build: ./
     command: >
       bash -c "python wait_for_postgres.py &&
+               ./manage.py makemigrations &&
                ./manage.py migrate &&
                ./manage.py runserver 0.0.0.0:8000"
+               
     volumes:
       - ./:/code
     ports:
