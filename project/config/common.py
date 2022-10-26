@@ -5,9 +5,11 @@ from datetime import timedelta
 import dj_database_url
 from configurations import Configuration
 from corsheaders.defaults import default_headers
-#from . import storage_backends
+
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 class Common(Configuration):
 
@@ -23,9 +25,11 @@ class Common(Configuration):
         "rest_framework.authtoken",  # token authentication
         "django_filters",  # for filtering rest endpoints
         "djoser",
+        "social_django",
+        "tagging",
         # Your apps
         "project.users",
-        "storages"
+        "storages",
     )
 
     # https://docs.djangoproject.com/en/2.0/topics/http/middleware/
@@ -39,6 +43,7 @@ class Common(Configuration):
         "django.contrib.auth.middleware.AuthenticationMiddleware",
         "django.contrib.messages.middleware.MessageMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
+        "social_django.middleware.SocialAuthExceptionMiddleware",
     )
 
     ALLOWED_HOSTS = ["*"]
@@ -85,7 +90,7 @@ class Common(Configuration):
     # MEDIA_ROOT = join(os.path.dirname(BASE_DIR), "media")
     # MEDIA_URL = "/media/"
 
-    USE_SPACES = os.getenv('USE_SPACES') == 'TRUE'
+    USE_SPACES = os.getenv('USE_SPACES') == 'FALSE'
 
     if USE_SPACES:
         # settings
@@ -102,7 +107,8 @@ class Common(Configuration):
         # public media settings
         PUBLIC_MEDIA_LOCATION = 'media'
         MEDIA_URL = f'https://{AWS_S3_ENDPOINT_URL}/{PUBLIC_MEDIA_LOCATION}/'
-        DEFAULT_FILE_STORAGE = 'project.config.storage_backends.PublicMediaStorage'
+        #DEFAULT_FILE_STORAGE = 'project.config.storage_backends.PublicMediaStorage'
+        DEFAULT_FILE_STORAGE = 'storage.PublicMediaStorage'
     else:
         STATIC_URL = '/static/'
         STATIC_ROOT = os.path.normpath(join(os.path.dirname(BASE_DIR), "static"))
@@ -122,6 +128,9 @@ class Common(Configuration):
                     "django.template.context_processors.request",
                     "django.contrib.auth.context_processors.auth",
                     "django.contrib.messages.context_processors.messages",
+
+                    "social_django.context_processors.backends",
+                    "social_django.context_processors.login_redirect",
                 ],
             },
         },
@@ -129,7 +138,8 @@ class Common(Configuration):
 
     # Set DEBUG to False as a default for safety
     # https://docs.djangoproject.com/en/dev/ref/settings/#debug
-    DEBUG = strtobool(os.getenv("DJANGO_DEBUG", "no"))
+    # DEBUG = strtobool(os.getenv("DJANGO_DEBUG", "no"))
+    DEBUG = True
 
     # Password Validation
     # https://docs.djangoproject.com/en/2.0/topics/auth/passwords/#module-django.contrib.auth.password_validation
@@ -215,7 +225,8 @@ class Common(Configuration):
             "rest_framework.renderers.BrowsableAPIRenderer",
         ),
         "DEFAULT_PERMISSION_CLASSES": [
-            "rest_framework.permissions.IsAuthenticated",
+            # "rest_framework.permissions.IsAuthenticated",
+            'rest_framework.permissions.AllowAny',
         ],
         "DEFAULT_AUTHENTICATION_CLASSES": (
             "rest_framework.authentication.SessionAuthentication",
@@ -225,20 +236,23 @@ class Common(Configuration):
     }
 
     SIMPLE_JWT = {
-        "AUTH_HEADER_TYPES": ("JWT",),
+        "AUTH_HEADER_TYPES": ("Bearer","Token","JWT",),
         "BLACKLIST_AFTER_ROTATION": False,
         "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
         "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
     }
+    
+    white_list = ['http://localhost:8000/accounts/profile/'] # URL you add to google developers console as allowed to make redirection
 
     # Djoser
     DJOSER = {
         "PASSWORD_RESET_CONFIRM_URL": "#/password/reset/confirm/{uid}/{token}",
         "USERNAME_RESET_CONFIRM_URL": "#/username/reset/confirm/{uid}/{token}",
         "ACTIVATION_URL": "activate/{uid}/{token}",
-        "SEND_ACTIVATION_EMAIL": True,
+        "SEND_ACTIVATION_EMAIL": False,
         "LOGIN_FIELD": "email",
-        # "SERIALIZERS": {},
+        "SERIALIZERS": {'user_create': 'project.users.serializers.UserRegistrationSerializer'}, 
+        'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': white_list # Redirected URL we listen on google console       
     }
 
     # Custom Settings
@@ -248,9 +262,42 @@ class Common(Configuration):
     CORS_ALLOW_CREDENTIALS = True
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:3000/",
+        "http://localhost:8000/",
         "http://127.0.0.1:3000/",
         "https://yoursite.com/",
         "https://yourside.herokuapp.com",
     ]
     CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
     CORS_ALLOW_HEADERS = list(default_headers)
+
+
+    AUTHENTICATION_BACKENDS = (
+    "social_core.backends.google.GoogleOAuth2",
+    "social_core.backends.facebook.FacebookOAuth2",
+
+    # Crucial when logging into admin with username & password
+    "django.contrib.auth.backends.ModelBackend",
+    )
+
+    # Client ID and Client Secret obtained from console.developers.google.com
+    SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "565700308053-virs9lpblofiu6b0rq9bpkb7drgqse1p.apps.googleusercontent.com"
+
+    SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "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"
+
+    SOCIAL_AUTH_RAISE_EXCEPTIONS = False
+    # SOCIAL_AUTH_POSTGRES_JSONFIELD = True # Optional, how token will be saved in DB
+   
+
+    SOCIAL_AUTH_FACEBOOK_KEY = "783561869389000"  # App ID
+    SOCIAL_AUTH_FACEBOOK_SECRET = "73c8e6c8354eb096ad451e5ef1f0ec02"  # App Secret  
+
+
+    SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+    SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+        'fields': 'email'
+    }
+    
+    #Django tagging custom settings
+    FORCE_LOWERCASE_TAGS = True
+
+    

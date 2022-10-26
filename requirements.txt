@@ -1,6 +1,6 @@
 # Core
 pytz==2022.1
-Django==4.0.4
+Django==3.2
 django-configurations==2.3.2
 gunicorn==20.1.0
 newrelic==7.10.0.175
@@ -17,10 +17,13 @@ django_unique_upload==0.2.1
 djangorestframework==3.13.1
 Markdown==3.3.7
 django-filter==21.1
-djoser==2.1.0
+djoser==2.0.3
 djangorestframework-simplejwt==4.8.0
 social-auth-app-django==4.0.0
 django-cors-headers==3.7.0
+django-utils-six==2.0
+django-tagging
+six
 
 # Developer Tools
 ipdb==0.13.9
@@ -35,9 +38,15 @@ django-nose==1.4.7
 nose-progressive==1.5.2
 coverage==6.4
 
+#pytest
+pytest
+pytest-django
+pytest-cov
+
 # Static and Media Storage
 django-storages==1.12.3
 boto3==1.23.5
 Pillow>=8.1.1
+
 
 # Project Dependencies

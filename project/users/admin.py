@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+# from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from .models import (User,Product,Service,Event,Delivery,
-                     ProductImages,ServiceImages,EventImages)
+                     ProductImages,ServiceImages,EventImages,Interest)
 
 
 # Setting up admin panel for Product
@@ -50,18 +51,24 @@ class EventAdmin(admin.ModelAdmin):
 # class EventImagesAdmin(admin.ModelAdmin):
 #     pass
 
-# admin.site.register(Product)
-# admin.site.register(Service)
-# admin.site.register(Event)
-# admin.site.register(Delivery)
-# admin.site.register(Upload)
+
 @admin.register(User)
 class UserAdmin(UserAdmin):
     ordering = ("email",)
     list_display = (
         "id",
         "email",
+        "interests",
         "is_active",
         "is_staff",
         "date_joined",
     )
+
+
+class InterestAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+    class Meta:
+        model = Interest
+
+admin.site.register(Interest, InterestAdmin)
+admin.site.register(Delivery)

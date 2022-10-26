@@ -3,21 +3,30 @@ from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
 from rest_framework import status
 from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
 from . import models
 import base64
-import io
 import uuid
-from PIL import Image
-from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.base import ContentFile
-from .serializers import ProductServiceEventSerializer
+from .serializers import(ProductSerializer, ServiceSerializer,EventSerializer,InterestSerializer,
+                         ProductServiceEventSerializer, UserSerializer,DeliverySerializer)
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import get_user_model
+from tagging.models import Tag
+from tagging.models import TaggedItem
 from collections import namedtuple
+
+User = get_user_model()
 Item = namedtuple('Item', ('product', 'service','event'))
 
-from django.core.files.images import ImageFile
-from django.core.files import File
-from django.core.files.uploadedfile import InMemoryUploadedFile
+
+class RedirectSocial(APIView):
+    def get(self, request, *args, **kwargs):
+        code, state = str(request.GET['code']), str(request.GET['state'])
+        json_obj = {'code': code, 'state': state}
+        print(json_obj)
+        return Response(json_obj)
+
 
 class ActivateUserEmail(CreateAPIView):
     permission_classes = []
@@ -41,12 +50,12 @@ class GoodServicesView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         data = request.data
-        owner = models.User.objects.get(email =request.user.email)
         try:
             if data['what_to_sell']:
-                obj = models.Product.objects.create(what_to_sell=data['what_to_sell'], quantity=data['quantity'],
-                                            category=data['category'],location=data['location'],price=data['price'],
-                                            description=data['description'],tags=data['tags'],owner=owner)
+                data['owner'] = request.user.id
+                serializer = ProductSerializer(data=data)
+                if serializer.is_valid():
+                    obj = serializer.save()
                 images=data['image']
                 for image in images:
                     str_image = image.split("b'")
@@ -58,10 +67,10 @@ class GoodServicesView(APIView):
             pass
         try:
             if data['what_to_do']:
-                obj = models.Service.objects.create(what_to_do=data['what_to_do'], 
-                                            delivery_type=data['delivery_type'],duration=data['duration'],
-                                            category=data['category'],location=data['location'],price=data['price'],
-                                            description=data['description'],tags=data['tags'],owner=owner)
+                data['owner'] = request.user.id
+                serializer = ServiceSerializer(data=data)
+                if serializer.is_valid():
+                    obj = serializer.save()
                 images=data['image']
                 for image in images:
                     str_image = image.split("b'")
@@ -73,10 +82,10 @@ class GoodServicesView(APIView):
             pass
         try:
             if data['what_is_it_about']:
-                obj = models.Event.objects.create(what_is_it_about=data['what_is_it_about'], 
-                                            medium=data['medium'],date_and_time=data['date_and_time'],
-                                            category=data['category'],location=data['location'],price=data['price'],
-                                            description=data['description'],tags=data['tags'],owner=owner)
+                data['owner'] = request.user.id
+                serializer = EventSerializer(data=data)
+                if serializer.is_valid():
+                    obj = serializer.save()
                 images=data['image']
                 for image in images:
                     str_image = image.split("b'")
@@ -86,7 +95,37 @@ class GoodServicesView(APIView):
                 return Response("Event Sent", status=status.HTTP_200_OK)
         except:
             pass
-        return Response('something went wrong',status=status.HTTP_400_BAD_REQUEST)
+        return Response('something went wrong.',status=status.HTTP_400_BAD_REQUEST)
+
+class PostDeliveryView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self,request):
+        data = request.data
+        data['owner'] = request.user.id
+        serializer = DeliverySerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response("Delivery Sent", status=status.HTTP_200_OK)
+        return Response('something went wrong.',status=status.HTTP_400_BAD_REQUEST)
+    
+class GetDeliveryView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        query_set = models.Delivery.objects.all()
+        serializer = DeliverySerializer(query_set,many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self,request):
+        data = request.data
+        input_tag = data["input_tag"]
+        try:
+            tag = Tag.objects.get(name=input_tag)
+            query_set = TaggedItem.objects.get_by_model(models.Delivery, tag)
+            serializer = DeliverySerializer(query_set,many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response('Tags does not exist',status=status.HTTP_400_BAD_REQUEST)
+    
 
 class DashboardView(APIView):
     permission_classes = [IsAuthenticated]
@@ -96,5 +135,80 @@ class DashboardView(APIView):
                         event = models.Event.objects.all())
         serializer = ProductServiceEventSerializer(item)
         
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self,request):
+        output_data = []
+        data = request.data
+        input_tag = data["input_tag"]
+        try:
+            tag = Tag.objects.get(name=input_tag)
+        except:
+            return Response('Tags does not exist',status=status.HTTP_400_BAD_REQUEST)
+        try:
+            query_set = TaggedItem.objects.get_by_model(models.Product, tag)
+            serializer = ProductSerializer(query_set,many=True)
+            output_data.append(serializer.data[0])
+        except:
+            pass
+        try:
+            query_set = TaggedItem.objects.get_by_model(models.Service, tag)
+            serializer = ServiceSerializer(query_set,many=True)
+            output_data.append(serializer.data[0])
+        except:
+            pass
+        try:
+            query_set = TaggedItem.objects.get_by_model(models.Event, tag)
+            serializer = EventSerializer(query_set,many=True)
+            output_data.append(serializer.data[0])
+        except:
+            pass
+        if output_data:
+            return Response(output_data, status=status.HTTP_200_OK)
+        else:
+            return Response('No match',status=status.HTTP_400_BAD_REQUEST)
+    
+
+class InterestView(APIView):
+    def get(self,request):
+        query_set = models.Interest.objects.all()
+        serializer = InterestSerializer(query_set,many=True)
         return Response(serializer.data, status=status.HTTP_200_OK) 
-            
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        query_set = User.objects.filter(email = request.user.email).first()
+        serializer = UserSerializer(query_set)
+        return Response(serializer.data, status=status.HTTP_200_OK) 
+
+    def delete(self, request):
+        data = request.data
+        interestID = data["interestID"]
+        query_set = User.objects.filter(email = request.user.email)
+        interest_list = query_set.values()[0]["interests"]
+        if interest_list == None:
+            return Response("InterestID does not exist", status=status.HTTP_400_BAD_REQUEST)
+        if interestID not in interest_list:
+            return Response("InterestID does not exist", status=status.HTTP_400_BAD_REQUEST)
+        else:
+            interest_list.remove(interestID)
+            user = query_set.update(interests=interest_list)
+            return Response("InterestID has been removed", status=status.HTTP_200_OK) 
+
+    def post(self, request):
+        data = request.data
+        interestID = data["interestID"]
+        query_set = User.objects.filter(email = request.user.email)
+        interest_list = query_set.values()[0]["interests"]
+        if interest_list == None:
+            interest_list = []
+            interest_list.append(interestID)
+            user = query_set.update(interests=interest_list)
+            return Response("InterestID has been added", status=status.HTTP_200_OK)
+        if interestID in interest_list:
+            return Response("InterestID exist", status=status.HTTP_400_BAD_REQUEST) 
+        else:
+            interest_list.append(interestID)
+            user = query_set.update(interests=interest_list)
+            return Response("InterestID has been added", status=status.HTTP_200_OK)

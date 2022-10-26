@@ -1,3 +1,4 @@
+#from six import python_2_unicode_compatible
 import os
 from .common import Common
 
@@ -6,7 +7,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 class Local(Common):
     DEBUG = True
-    DOMAIN = "127.0.0.1:3000"
+    DOMAIN = "127.0.0.1:8000"
 
     # Testing
     INSTALLED_APPS = Common.INSTALLED_APPS
