@@ -58,9 +58,9 @@ class GoodServicesView(APIView):
                     obj = serializer.save()
                 images=data['image']
                 for image in images:
-                    str_image = image.split("b'")
+                    #str_image = image.split("b'")
                     img_name = str(uuid.uuid4())[:10] + '.png'
-                    content_file = ContentFile(base64.b64decode(str_image[1]), name=img_name)
+                    content_file = ContentFile(base64.b64decode(image), name=img_name)
                     uploaded_image = models.ProductImages.objects.create(img = content_file,product=obj)
                 return Response("Product Sent", status=status.HTTP_200_OK)
         except:
@@ -73,9 +73,9 @@ class GoodServicesView(APIView):
                     obj = serializer.save()
                 images=data['image']
                 for image in images:
-                    str_image = image.split("b'")
+                    #str_image = image.split("b'")
                     img_name = str(uuid.uuid4())[:10] + '.png'
-                    content_file = ContentFile(base64.b64decode(str_image[1]), name=img_name)
+                    content_file = ContentFile(base64.b64decode(image), name=img_name)
                     uploaded_image = models.ServiceImages.objects.create(img = content_file,service=obj)
                 return Response("Service Sent", status=status.HTTP_200_OK)
         except:
@@ -88,9 +88,9 @@ class GoodServicesView(APIView):
                     obj = serializer.save()
                 images=data['image']
                 for image in images:
-                    str_image = image.split("b'")
+                    #str_image = image.split("b'")
                     img_name = str(uuid.uuid4())[:10] + '.png'
-                    content_file = ContentFile(base64.b64decode(str_image[1]), name=img_name)
+                    content_file = ContentFile(base64.b64decode(image), name=img_name)
                     uploaded_image = models.EventImages.objects.create(img = content_file,event=obj)
                 return Response("Event Sent", status=status.HTTP_200_OK)
         except:
