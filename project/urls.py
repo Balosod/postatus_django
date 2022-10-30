@@ -5,9 +5,11 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView
 from rest_framework.routers import DefaultRouter
 from rest_framework.authtoken import views
-from .users.views import (RedirectSocial,ActivateUserEmail,GoodServicesView,
-                           DashboardView, InterestView,UserProfileView,PostDeliveryView,
-                           GetDeliveryView)
+from .users.views import (RedirectSocial,ActivateUserEmail,UserProfile)
+from .services.views import GoodServices
+from .interest.views import Interest
+from .explore.views import Explore
+from .detail.views import ExploreDetail
 
 router = DefaultRouter()
 
@@ -22,12 +24,11 @@ urlpatterns = [
     path("auth/users/activate/account/", ActivateUserEmail.as_view()),
     path('accounts/profile/', RedirectSocial.as_view()),
     #path('',include("users.url")),
-    path('goods', GoodServicesView.as_view(),name= "goods"),
-    path('all_goods', DashboardView.as_view(),name= "dashboard"),
-    path('interest', InterestView.as_view(),name= "interest"),
-    path('post_delivery', PostDeliveryView.as_view(),name= "post_delivery"),
-    path('get_delivery', GetDeliveryView.as_view(),name= "get_delivery"),
-    path('user', UserProfileView.as_view(),name= "user"),
+    path('services', GoodServices.as_view(),name= "services"),
+    path('explore', Explore.as_view(),name= "explore"),
+    path('explore_detail', ExploreDetail.as_view(),name= "explore_detail"),
+    path('interest', Interest.as_view(),name= "interest"),
+    path('user', UserProfile.as_view(),name= "user"),
     # the 'api-root' from django rest-frameworks default router
     # http://www.django-rest-framework.org/api-guide/routers/#defaultrouter
     re_path(r"^$", RedirectView.as_view(url=reverse_lazy("api-root"), permanent=False)),

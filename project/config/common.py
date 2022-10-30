@@ -29,6 +29,10 @@ class Common(Configuration):
         "tagging",
         # Your apps
         "project.users",
+        "project.services",
+        "project.interest",
+        "project.explore",
+        "project.detail",
         "storages",
     )
 
@@ -299,5 +303,8 @@ class Common(Configuration):
     
     #Django tagging custom settings
     FORCE_LOWERCASE_TAGS = True
+    
+    #Configure DEFAULT_AUTO_FIELD in settings
+    DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
     
