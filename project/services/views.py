@@ -63,14 +63,10 @@ class GoodServices(APIView):
             pass
         try:
             if data['pick_up_location']:
-                print('yes1')
                 data['owner'] = request.user.id
                 serializer = DeliverySerializer(data = data)
-                print('yes2')
                 if serializer.is_valid():
-                    print('yes3')
                     serializer.save()
-                    print('yes4')
                     return Response("Delivery Sent", status=status.HTTP_200_OK)
         except:
             pass
