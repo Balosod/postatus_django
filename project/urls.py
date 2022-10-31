@@ -10,6 +10,7 @@ from .services.views import GoodServices
 from .interest.views import Interest
 from .explore.views import Explore
 from .detail.views import ExploreDetail
+from .dashboard.views import Dashboard
 
 router = DefaultRouter()
 
@@ -26,6 +27,7 @@ urlpatterns = [
     #path('',include("users.url")),
     path('services', GoodServices.as_view(),name= "services"),
     path('explore', Explore.as_view(),name= "explore"),
+    path('dashboard', Dashboard.as_view(),name= "dashboard"),
     path('explore_detail', ExploreDetail.as_view(),name= "explore_detail"),
     path('interest', Interest.as_view(),name= "interest"),
     path('user', UserProfile.as_view(),name= "user"),
