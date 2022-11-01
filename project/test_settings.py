@@ -51,6 +51,10 @@ INSTALLED_APPS = [
     "tagging",
     # Your apps
     "project.users",
+    "project.services",
+    "project.interest",
+    "project.explore",
+    "project.detail",
     "storages",
 
     

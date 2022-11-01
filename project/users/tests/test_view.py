@@ -20,17 +20,17 @@ def test_user_signup(client,user_data):
 
 
 #TESTING FOR  USER LOGIN   
-@pytest.mark.django_db
-def test_default_user_login(client, create_test_user, user_data):
-    headers = {
-            "Content-Type": "application/json;charset=UTF-8"
-        }
-    body = {"username":"sodiqb86@gmail.com","password":"BAlogunSodiq134#@"}
-    assert User.objects.count() == 1
-    resp = client.post('/api-token-auth/', data = body, headers=headers)
-    token = resp.json()['token']
-    print(token)
-    assert resp.status_code == 200
+# @pytest.mark.django_db
+# def test_default_user_login(client, create_test_user, user_data):
+#     headers = {
+#             "Content-Type": "application/json;charset=UTF-8"
+#         }
+#     body = {"username":"sodiqb86@gmail.com","password":"BAlogunSodiq134#@"}
+#     assert User.objects.count() == 1
+#     resp = client.post('/api-token-auth/', data = body, headers=headers)
+#     token = resp.json()['token']
+#     print(token)
+#     assert resp.status_code == 200
 
 
 #TESTING API FOR CREATING PRODUCT,SERVICES AND EVENT
@@ -38,53 +38,55 @@ def test_default_user_login(client, create_test_user, user_data):
 def test_what_to_sell(client,create_test_user,create_what_to_sell):
     client = APIClient()
     client.force_authenticate(create_test_user)
-    resp = client.post('/goods', data = create_what_to_sell, format='json')
+    resp = client.post('/services', data = create_what_to_sell, format='json')
     assert resp.status_code == 200
 
 #TESTING API FOR GETTING ALL PRODUCT,SERVICES AND EVENT
 @pytest.mark.django_db
-def test_dashboard(client,create_test_user,create_what_to_sell):
+def test_explore(client,create_test_user,create_what_to_sell):
     client = APIClient()
     client.force_authenticate(create_test_user)
-    client.post('/goods', data = create_what_to_sell, format='json')
-    resp = client.get('/all_goods')
+    client.post('/services', data = create_what_to_sell, format='json')
+    resp = client.get('/explore')
     assert resp.status_code == 200
     
 #TESTING API FOR GETTING  PRODUCT,SERVICES AND EVENT BASE ON TAG INPUT
 @pytest.mark.django_db
+def test_explore_by_tag(client,create_test_user,create_what_to_sell):
+    client = APIClient()
+    client.force_authenticate(create_test_user)
+    client.post('/services', data = create_what_to_sell, format='json')
+    resp = client.post('/explore', data={"input_tag":"phone"},format = 'json')
+    assert resp.status_code == 200
+    
+#TESTING API FOR GETTING  PRODUCT,SERVICES AND EVENT DETAILS
+@pytest.mark.django_db
+def test_explore_detail(client,create_test_user,create_what_to_sell):
+    client = APIClient()
+    client.force_authenticate(create_test_user)
+    client.post('/services', data = create_what_to_sell, format='json')
+    resp = client.post('/explore_detail', data={"title":"phone","id":1},format = 'json')
+    print(resp.json())
+    assert resp.status_code == 200
+    
+#TESTING API FOR GETTING ALL PRODUCT,SERVICES AND EVENT FOR ONLY USER
+@pytest.mark.django_db
+def test_dashboard(client,create_test_user,create_what_to_sell):
+    client = APIClient()
+    client.force_authenticate(create_test_user)
+    client.post('/services', data = create_what_to_sell, format='json')
+    resp = client.get('/dashboard')
+    assert resp.status_code == 200
+    
+#TESTING API FOR GETTING  PRODUCT,SERVICES AND EVENT BASE ON TAG INPUT FOR ONLY USER
+@pytest.mark.django_db
 def test_dashboard_by_tag(client,create_test_user,create_what_to_sell):
     client = APIClient()
     client.force_authenticate(create_test_user)
-    client.post('/goods', data = create_what_to_sell, format='json')
-    resp = client.post('/all_goods', data={"input_tag":"phone"},format = 'json')
+    client.post('/services', data = create_what_to_sell, format='json')
+    resp = client.post('/dashboard', data={"input_tag":"phone"},format = 'json')
     assert resp.status_code == 200
     
-#TESTING API FOR CREATING DELIVERY REQUEST
-@pytest.mark.django_db
-def test_create_delivery(client,create_test_user,create_delivery):
-    client = APIClient()
-    client.force_authenticate(create_test_user)
-    resp = client.post('/post_delivery', data = create_delivery, format='json')
-    assert resp.status_code == 200
-    
-    
-#TESTING API FOR GETTING ALL DELIVERY REQUEST
-@pytest.mark.django_db
-def test_get_delivery(client,create_test_user,create_delivery):
-    client = APIClient()
-    client.force_authenticate(create_test_user)
-    client.post('/post_delivery', data = create_delivery, format='json')
-    resp = client.get('/get_delivery')
-    assert resp.status_code == 200
-    
-#TESTING API FOR GETTING DELIVERY REQUEST BASE ON TAG INPUT
-@pytest.mark.django_db
-def test_get_delivery_by_tag(client,create_test_user,create_delivery):
-    client = APIClient()
-    client.force_authenticate(create_test_user)
-    client.post('/post_delivery', data = create_delivery, format='json')
-    resp = client.get('/get_delivery',data={"input_tag":"pen"})
-    assert resp.status_code == 200
 
 #TESTING API FOR GETTING ALL INTERESTS
 @pytest.mark.django_db

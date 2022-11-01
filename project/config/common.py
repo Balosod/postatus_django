@@ -284,16 +284,16 @@ class Common(Configuration):
     )
 
     # Client ID and Client Secret obtained from console.developers.google.com
-    SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "565700308053-virs9lpblofiu6b0rq9bpkb7drgqse1p.apps.googleusercontent.com"
+    SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
 
-    SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "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"
+    SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 
     SOCIAL_AUTH_RAISE_EXCEPTIONS = False
     # SOCIAL_AUTH_POSTGRES_JSONFIELD = True # Optional, how token will be saved in DB
    
 
-    SOCIAL_AUTH_FACEBOOK_KEY = "783561869389000"  # App ID
-    SOCIAL_AUTH_FACEBOOK_SECRET = "73c8e6c8354eb096ad451e5ef1f0ec02"  # App Secret  
+    SOCIAL_AUTH_FACEBOOK_KEY = os.getenv('SOCIAL_AUTH_FACEBOOK_KEY')  # App ID
+    SOCIAL_AUTH_FACEBOOK_SECRET = os.getenv('SOCIAL_AUTH_FACEBOOK_SECRET')  # App Secret  
 
 
     SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
@@ -306,5 +306,8 @@ class Common(Configuration):
     
     #Configure DEFAULT_AUTO_FIELD in settings
     DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+    
+
 
     

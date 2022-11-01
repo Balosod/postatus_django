@@ -53,3 +53,11 @@ class UserRegistrationSerializer(BaseUserRegistrationSerializer):
         except IntegrityError:
             self.fail("cannot_create_user")
         return user
+    
+    
+class OTPSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    otp = serializers.CharField(required=True, allow_blank=False, allow_null=False)
+    
+class EmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)

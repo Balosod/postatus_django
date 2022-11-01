@@ -26,7 +26,6 @@ class GoodServices(APIView):
                     #str_image = image.split("b'")
                     img_name = str(uuid.uuid4())[:10] + '.png'
                     content_file = ContentFile(base64.b64decode(image), name=img_name)
-                    print(content_file)
                     uploaded_image = models.ProductImages.objects.create(img = content_file,product=obj)
                 return Response("Product Sent", status=status.HTTP_200_OK)
         except:

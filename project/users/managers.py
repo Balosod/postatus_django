@@ -1,5 +1,6 @@
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.base_user import BaseUserManager
+from .helpers import EmailManager, OTPManager
 # from .models import Favorite
 
 
@@ -17,6 +18,8 @@ class CustomUserManager(BaseUserManager):
         user.username = email
         # We check if password has been given
         if password:
+            user.is_active = False
+            EmailManager.send_welcome_msg(user.email)
             user.set_password(password)
         user.save()
         return user

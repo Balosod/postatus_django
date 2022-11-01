@@ -5,10 +5,11 @@ from rest_framework import status
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from . import models
+from . import auth_service
 import base64
 import uuid
 from django.core.files.base import ContentFile
-from .serializers import UserSerializer
+from .serializers import UserSerializer,OTPSerializer,EmailSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 
@@ -44,6 +45,22 @@ class ActivateUserEmail(CreateAPIView):
 
         response = dict(detail="success") if res.status_code < 300 else res.json()
         return Response(response)
+    
+class VerifyOtp(APIView):
+    def post(self,request):
+        data = request.data
+        serializer = OTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        obj = auth_service.verify_OTP(**serializer.validated_data)
+        return Response(status=status.HTTP_200_OK, data=obj)
+
+class ResendOtp(APIView):
+    def post(self,request):
+        data = request.data
+        serializer = EmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        obj = auth_service.resend_OTP(**serializer.validated_data)
+        return Response(status=status.HTTP_200_OK, data=obj)
 
 class UserProfile(APIView):
     permission_classes = [IsAuthenticated]

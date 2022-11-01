@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView
 from rest_framework.routers import DefaultRouter
 from rest_framework.authtoken import views
-from .users.views import (RedirectSocial,ActivateUserEmail,UserProfile)
+from .users.views import (RedirectSocial,ActivateUserEmail,VerifyOtp,ResendOtp,UserProfile)
 from .services.views import GoodServices
 from .interest.views import Interest
 from .explore.views import Explore
@@ -23,6 +23,8 @@ urlpatterns = [
     path("api/auth/social/", include("djoser.social.urls")),
     path("auth/", include("djoser.urls.jwt")),
     path("auth/users/activate/account/", ActivateUserEmail.as_view()),
+    path("api/users/verify/", VerifyOtp.as_view()),
+    path("api/users/otp/resend/", ResendOtp.as_view()),
     path('accounts/profile/', RedirectSocial.as_view()),
     #path('',include("users.url")),
     path('services', GoodServices.as_view(),name= "services"),

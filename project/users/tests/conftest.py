@@ -1,7 +1,7 @@
 from django.conf import settings
 import pytest
 import json
-from project.users.models import (Product, Service, Event,
+from project.services.models import (Product, Service, Event,
                         ProductImages,ServiceImages,EventImages)
 from django.contrib.auth import get_user_model
 User = get_user_model()
