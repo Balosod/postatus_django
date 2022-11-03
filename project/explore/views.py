@@ -22,8 +22,7 @@ class Explore(APIView):
                         service = models.Service.objects.all(),
                         event = models.Event.objects.all(),
                         delivery = models.Delivery.objects.all())
-        serializer = ProductServiceEventSerializer(item)
-        
+        serializer = ProductServiceEventSerializer(item)        
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self,request):
@@ -32,7 +31,6 @@ class Explore(APIView):
         input_tag = data["input_tag"]
         try:
             tag = Tag.objects.get(name=input_tag)
-            print(tag)
         except:
             return Response('Tags does not exist',status=status.HTTP_400_BAD_REQUEST)
         try:
