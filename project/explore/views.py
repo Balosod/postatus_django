@@ -10,6 +10,7 @@ from project.services.serializers import (ProductServiceEventSerializer,ServiceS
 from tagging.models import TaggedItem
 from tagging.models import Tag
 from collections import namedtuple
+from django.db.models import Q
 Item = namedtuple('Item', ('product', 'service','event','delivery'))
 
 # Create your views here.
@@ -17,11 +18,11 @@ Item = namedtuple('Item', ('product', 'service','event','delivery'))
 
 class Explore(APIView):
     permission_classes = [IsAuthenticated]
-    def get(self,request):
-        item = Item(product = models.Product.objects.all(),
-                        service = models.Service.objects.all(),
-                        event = models.Event.objects.all(),
-                        delivery = models.Delivery.objects.all())
+    def get(self,request,location):
+        item = Item(product = models.Product.objects.filter(Q(location__icontains = location)),
+                        service = models.Service.objects.filter(Q(location__icontains = location)),
+                        event = models.Event.objects.filter(Q(location__icontains = location)),
+                        delivery = models.Delivery.objects.filter(Q(location__icontains = location)))
         serializer = ProductServiceEventSerializer(item)        
         return Response(serializer.data, status=status.HTTP_200_OK)
     
